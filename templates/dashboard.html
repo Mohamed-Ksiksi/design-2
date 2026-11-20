@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}Analysis dashboard{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+
+{% block page_header %}
+  <div class="page-head container">
+    <div>
+      <p class="eyebrow">REPORT / {{ a.meta.date }}</p>
+      <h1>Analysis dashboard</h1>
+    </div>
+    <span class="stamp">Demonstration data</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container dashboard">
+    <div class="report-meta">
+      <span><b>{{ a.meta.name }}</b></span>
+      <span>{{ a.meta.language }}</span>
+      <span>{{ a.meta.lines }} lines</span>
+      <span>N = {{ '{:,}'.format(a.meta.n) }}</span>
+      <span>Fixed example model</span>
+    </div>
+
+    <section class="primary-metrics" aria-label="Principal metrics">
+      <article class="metric metric-lead">
+        <p class="metric-label">Time complexity</p>
+        <p class="metric-value">{{ a.metrics.complexity }}</p>
+        <p class="metric-note">Work grows with the square of N. Doubling the input roughly quadruples the effort.</p>
+        <div class="growth" aria-label="Illustrative quadratic growth">
+          <span style="height: 8%"></span><span style="height: 25%"></span><span style="height: 56%"></span><span style="height: 100%"></span>
+        </div>
+        <p class="growth-caption">relative work · N doubling →</p>
+      </article>
+
+      <article class="metric">
+        <p class="metric-label">Execution time</p>
+        <p class="metric-value">{{ a.metrics.time }} <small>{{ a.metrics.time_unit }}</small></p>
+        <p class="metric-note">Estimated runtime for one run at the chosen N.</p>
+        <div class="bench">
+          <div class="bench-row"><span>Original</span><div class="bench-track"><i style="width: 100%"></i></div></div>
+          <div class="bench-row is-ref"><span>Reference</span><div class="bench-track"><i style="width: {{ 100 - a.improvements.time }}%"></i></div></div>
+        </div>
+      </article>
+
+      <article class="metric">
+        <p class="metric-label">Energy consumption</p>
+        <p class="metric-value">{{ a.metrics.energy }} <small>{{ a.metrics.energy_unit }}</small></p>
+        <p class="metric-note">Estimated energy drawn by one execution.</p>
+        <div class="bench">
+          <div class="bench-row"><span>Original</span><div class="bench-track"><i style="width: 100%"></i></div></div>
+          <div class="bench-row is-ref"><span>Reference</span><div class="bench-track"><i style="width: {{ 100 - a.improvements.energy }}%"></i></div></div>
+        </div>
+      </article>
+
+      <article class="metric">
+        <p class="metric-label">Carbon emissions</p>
+        <p class="metric-value">{{ a.metrics.co2 }} <small>{{ a.metrics.co2_unit }}</small></p>
+        <p class="metric-note">Energy converted with a fixed 400 g CO₂e / Wh factor.</p>
+        <div class="bench">
+          <div class="bench-row"><span>Original</span><div class="bench-track"><i style="width: 100%"></i></div></div>
+          <div class="bench-row is-ref"><span>Reference</span><div class="bench-track"><i style="width: {{ 100 - a.improvements.co2 }}%"></i></div></div>
+        </div>
+      </article>
+    </section>
+    <p class="metric-disclaimer">Bars compare the demonstration figure with the illustrative leaner reference. They are not benchmark results.</p>
+
+    <div class="section-title">
+      <p class="eyebrow">VISUAL ANALYTICS</p>
+      <h2>How the figures scale</h2>
+    </div>
+
+    <section class="chart-grid" aria-label="Demonstration charts">
+      <article class="chart-card">
+        <header>
+          <div><span class="fig-no">FIG 01</span><h3>Execution time vs input size</h3></div>
+          <span class="legend"><i class="sw-orig"></i>original <i class="sw-ref"></i>reference</span>
+        </header>
+        <div class="column-chart">
+          {% for point in a.charts.points %}
+            <div class="column-group">
+              <div class="column-pair">
+                <div class="column orig" style="height: {{ point.time_o }}%"></div>
+                <div class="column ref" style="height: {{ point.time_p }}%"></div>
+              </div>
+              <span class="column-label">{{ point.label }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <p class="chart-caption">Illustrative quadratic curve against O(n log n). Logarithmic scale; largest input = 100%.</p>
+      </article>
+
+      <article class="chart-card">
+        <header>
+          <div><span class="fig-no">FIG 02</span><h3>Energy per run vs input size</h3></div>
+          <span class="legend"><i class="sw-orig"></i>original <i class="sw-ref"></i>reference</span>
+        </header>
+        <div class="row-chart">
+          {% for point in a.charts.points %}
+            <div class="row-group">
+              <span class="row-label">{{ point.label }}</span>
+              <div class="row-tracks">
+                <div class="row-track"><i class="orig" style="width: {{ point.energy_o }}%"></i></div>
+                <div class="row-track"><i class="ref" style="width: {{ point.energy_p }}%"></i></div>
+              </div>
+              <span class="row-value">{{ point.energy_value }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <p class="chart-caption">Upper bar: original. Lower bar: leaner reference. Logarithmic scale; values are example estimates.</p>
+      </article>
+
+      <article class="chart-card">
+        <header>
+          <div><span class="fig-no">FIG 03</span><h3>Carbon emissions vs input size</h3></div>
+          <span class="legend"><i class="sw-orig"></i>original <i class="sw-ref"></i>reference</span>
+        </header>
+        <div class="dot-chart">
+          {% for point in a.charts.points %}
+            <div class="dot-group">
+              <div class="dot-track">
+                <i class="dot-stem" style="height: {{ point.co2_o }}%"></i>
+                <i class="dot orig" style="bottom: {{ point.co2_o }}%"></i>
+                <i class="dot ref" style="bottom: {{ point.co2_p }}%"></i>
+              </div>
+              <span class="dot-label">{{ point.label }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <p class="chart-caption">Same energy model converted with the fixed demonstration grid factor. Logarithmic scale.</p>
+      </article>
+
+      <article class="chart-card">
+        <header>
+          <div><span class="fig-no">FIG 04</span><h3>Complexity and scalability</h3></div>
+          <span class="legend">log scale</span>
+        </header>
+        <div class="scale-chart">
+          {% for row in a.charts.scalability %}
+            <div class="scale-row{% if row.active %} is-active{% endif %}{% if row.optimized %} is-reference{% endif %}">
+              <span class="scale-label">{{ row.label }}</span>
+              <div class="scale-track"><i style="width: {{ row.width }}%"></i></div>
+              <span class="scale-note">{{ row.note }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <p class="chart-caption">Relative operations at N = {{ a.charts.max_label }}, shown on a logarithmic axis for readability.</p>
+      </article>
+    </section>
+
+    <div class="section-title">
+      <p class="eyebrow">TECHNICAL ANALYSIS</p>
+      <h2>What stands out</h2>
+    </div>
+
+    <section class="technical">
+      <div class="technical-main">
+        <h3>Detected loops</h3>
+        {% if a.findings.loops %}
+          <div class="table-scroll">
+            <table class="data-table compact">
+              <thead><tr><th scope="col">Line</th><th scope="col">Pattern</th><th scope="col">Depth</th><th scope="col">Cost</th></tr></thead>
+              <tbody>
+                {% for entry in a.findings.loops %}
+                  <tr><td class="mono">{{ entry.line }}</td><td class="mono">{{ entry.text }}</td><td>{{ entry.depth }}</td><td><span class="tag{% if entry.depth > 1 %} tag-warn{% endif %}">{{ entry.cost }}</span></td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="muted">No detailed loop inventory is included in this demonstration report.</p>
+        {% endif %}
+        {% if a.findings.generic %}
+          <p class="fineprint">The loop inventory above describes the bundled sample program, not the history record that opened this report.</p>
+        {% endif %}
+
+        <h3>Complexity explanation</h3>
+        <p class="body-copy">{{ a.findings.explanation }}</p>
+
+        <details class="source-details">
+          <summary>View submitted source ({{ a.meta.lines }} lines)</summary>
+<pre class="code-block"><code>{{ a.code }}</code></pre>
+          <p class="fineprint">Code is displayed as text. It was not compiled or executed.</p>
+        </details>
+      </div>
+
+      <aside class="technical-notes" aria-label="Observations and recommendations">
+        <section>
+          <h3>Potentially inefficient operations</h3>
+          <ul class="note-list">
+            {% for item in a.findings.inefficient %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Possible bottlenecks</h3>
+          <ul class="note-list">
+            {% for item in a.findings.bottlenecks %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </section>
+        <section>
+          <h3>Optimization recommendations</h3>
+          <ul class="note-list note-list-good">
+            {% for item in a.findings.recommendations %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </section>
+      </aside>
+    </section>
+
+    <section class="optimize-cta">
+      <div>
+        <p class="eyebrow">NEXT STEP</p>
+        <h2>See what changes when the algorithm changes.</h2>
+        <p>Inspect an illustrative optimized implementation and compare it against this report.</p>
+      </div>
+      <a class="btn btn-primary btn-large" href="{{ url_for('comparison') }}">OPTIMIZE MY CODE <span aria-hidden="true">→</span></a>
+    </section>
+  </div>
+{% endblock %}

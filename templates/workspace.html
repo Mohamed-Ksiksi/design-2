@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}New analysis workspace{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css') }}">{% endblock %}
+
+{% block page_header %}
+  <div class="page-head container">
+    <div>
+      <p class="eyebrow">WORKSPACE / NEW ANALYSIS</p>
+      <h1>Prepare a program</h1>
+    </div>
+    <span class="stamp">Demonstration analysis</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    {% if errors %}
+      <div class="form-alert" role="alert">
+        <strong>Check the form</strong>
+        <ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
+      </div>
+    {% elif notice %}
+      <p class="form-notice">{{ notice }}</p>
+    {% endif %}
+
+    <form class="workspace" method="post" action="{{ url_for('analyze') }}" enctype="multipart/form-data">
+      <section class="editor" aria-label="Source code editor">
+        <div class="editor-bar">
+          <label class="file-field">
+            <span>File</span>
+            <input type="text" name="name" value="{{ name }}" maxlength="80" spellcheck="false" aria-label="Project or file name">
+          </label>
+          <div class="editor-tools">
+            <label class="tool upload">
+              <span>Upload source file</span>
+              <input type="file" name="source_file" accept=".py,.txt" aria-label="Upload a Python or text source file">
+            </label>
+            <button class="tool" type="submit" name="action" value="sample">Load sample</button>
+            <button class="tool" type="submit" name="action" value="clear">Clear editor</button>
+          </div>
+        </div>
+
+        <div class="editor-surface">
+          <div class="editor-rule" aria-hidden="true"></div>
+          <textarea name="code" id="source-code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Source code" placeholder="# Paste or write Python code here...">{{ code }}</textarea>
+        </div>
+
+        <div class="editor-status">
+          <span>UTF-8 · Python · text only, never executed</span>
+          <span>{{ code|length }} / {{ max_chars }} characters</span>
+        </div>
+      </section>
+
+      <aside class="analysis-options" aria-label="Analysis settings">
+        <div class="options-head">
+          <p class="eyebrow">ANALYSIS SETTINGS</p>
+          <h2>Parameters</h2>
+        </div>
+
+        <label class="field">
+          <span>Language</span>
+          <select name="language">
+            <option value="Python"{% if language == 'Python' %} selected{% endif %}>Python</option>
+            <option value="JavaScript" disabled>JavaScript — planned</option>
+            <option value="Java" disabled>Java — planned</option>
+            <option value="C++" disabled>C++ — planned</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Input size / iterations (N)</span>
+          <input type="number" name="n" value="{{ n }}" min="10" max="1000000" step="1" required>
+        </label>
+
+        <div class="presets">
+          <span class="preset-label">Common sizes</span>
+          <div class="preset-grid">
+            <button type="submit" name="preset_n" value="100">100</button>
+            <button type="submit" name="preset_n" value="1000">1,000</button>
+            <button type="submit" name="preset_n" value="10000">10,000</button>
+            <button type="submit" name="preset_n" value="100000">100,000</button>
+          </div>
+        </div>
+
+        <p class="options-note">N scales the demonstration figures. The prototype does not inspect or run your program.</p>
+
+        <button class="btn btn-primary btn-block" type="submit" name="action" value="analyze">Analyze code <span aria-hidden="true">→</span></button>
+        <p class="fineprint">Results are illustrative examples, not measured benchmarks.</p>
+      </aside>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_header %}
+  <div class="page-head container">
+    <div>
+      <p class="eyebrow">PREFERENCES / PROTOTYPE</p>
+      <h1>Settings</h1>
+    </div>
+    <span class="stamp">No account required</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container settings-page">
+    <div class="settings-intro">
+      <h2>What is configurable today</h2>
+      <p>EcoCode is a prototype without accounts or a measurement backend. The preferences below record a choice for this session but do not change the demonstration figures.</p>
+    </div>
+
+    <form method="post" action="{{ url_for('settings') }}" class="settings-form">
+      <fieldset>
+        <legend>Reporting</legend>
+        <label class="field">
+          <span>Display density</span>
+          <select name="density">
+            <option value="comfortable">Comfortable</option>
+            <option value="compact">Compact</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Default input size</span>
+          <select name="default_n">
+            <option value="1000">1,000</option>
+            <option value="100">100</option>
+            <option value="10000">10,000</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Measurement context — planned</legend>
+        <label class="field">
+          <span>Grid carbon factor</span>
+          <select name="grid" disabled>
+            <option>Fixed demonstration factor (400 g CO₂e / Wh)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Hardware profile</span>
+          <select name="hardware" disabled>
+            <option>Reference profile — available with a real backend</option>
+          </select>
+        </label>
+        <p class="fineprint">Disabled controls will be connected to the analysis service in a later version.</p>
+      </fieldset>
+
+      <button class="btn btn-primary" type="submit">Save preferences</button>
+    </form>
+  </div>
+{% endblock %}

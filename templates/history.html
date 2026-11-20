@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}{% if view == 'reports' %}Reports{% else %}Analysis history{% endif %}{% endblock %}
+{% block page_header %}
+  <div class="page-head container">
+    <div>
+      <p class="eyebrow">{% if view == 'reports' %}ARCHIVE / REPORTS{% else %}ARCHIVE / ANALYSIS HISTORY{% endif %}</p>
+      <h1>{% if view == 'reports' %}Reports{% else %}Analysis history{% endif %}</h1>
+    </div>
+    <span class="stamp">Illustrative records</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container history-page">
+    <p class="history-intro">
+      {% if view == 'reports' %}
+        A summary of the demonstration reports available in this prototype. Opening a record loads its example analysis.
+      {% else %}
+        A structured list of past demonstration analyses. Filtering runs on the server through ordinary form submission.
+      {% endif %}
+    </p>
+
+    <section class="history-summary" aria-label="Summary">
+      <div><strong>{{ summary.count }}</strong><span>records shown</span></div>
+      <div><strong>{{ summary.average_time }}</strong><span>average example runtime</span></div>
+      <div><strong>{{ summary.total_co2 }}</strong><span>total example CO₂e</span></div>
+      <a class="text-link" href="{{ url_for('export_csv') }}">Export CSV <span aria-hidden="true">↓</span></a>
+    </section>
+
+    <form class="history-filters" method="get" action="{{ url_for('reports' if view == 'reports' else 'history') }}">
+      <label>
+        <span>Search file</span>
+        <input type="search" name="q" value="{{ filters.get('q', '') }}" placeholder="e.g. find_duplicates">
+      </label>
+      <label>
+        <span>Language</span>
+        <select name="language">
+          <option value="">All languages</option>
+          <option value="Python"{% if filters.get('language') == 'Python' %} selected{% endif %}>Python</option>
+        </select>
+      </label>
+      <label>
+        <span>Complexity</span>
+        <select name="complexity">
+          <option value="">All complexities</option>
+          {% for option in ['O(n)', 'O(log n)', 'O(n log n)', 'O(n²)', 'O(n³)', 'O(2ⁿ)', 'O(n + m)'] %}
+            <option value="{{ option }}"{% if filters.get('complexity') == option %} selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn btn-secondary" type="submit">Apply filters</button>
+      {% if filters.get('q') or filters.get('language') or filters.get('complexity') %}
+        <a class="quiet-link" href="{{ url_for('reports' if view == 'reports' else 'history') }}">Clear</a>
+      {% endif %}
+    </form>
+
+    <section class="table-wrap history-table">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Project / file</th>
+              <th scope="col">Language</th>
+              <th scope="col">Time complexity</th>
+              <th scope="col">Execution time</th>
+              <th scope="col">Energy (demo)</th>
+              <th scope="col">Analysis date</th>
+              <th scope="col"><span class="sr-only">Action</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td class="file-cell mono">{{ row.name }}</td>
+                <td>{{ row.language }}</td>
+                <td><span class="tag">{{ row.complexity }}</span></td>
+                <td class="mono">{{ row.time_display }}</td>
+                <td class="mono muted">{{ row.energy_display }}</td>
+                <td class="mono">{{ row.date }}</td>
+                <td class="action-cell">
+                  <form method="post" action="{{ url_for('history_view') }}">
+                    <input type="hidden" name="id" value="{{ row.id }}">
+                    <button class="row-action" type="submit">View results <span aria-hidden="true">→</span></button>
+                  </form>
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="7" class="empty-cell">No records match these filters. <a href="{{ url_for('history') }}">Clear filters</a></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="fineprint">Every record is illustrative. “View results” opens a demonstration report built from the record's name, language and input size.</p>
+  </div>
+{% endblock %}

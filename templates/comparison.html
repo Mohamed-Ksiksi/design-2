@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Optimization and comparison{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/comparison.css') }}">{% endblock %}
+
+{% block page_header %}
+  <div class="page-head container">
+    <div>
+      <p class="eyebrow">COMPARISON / ILLUSTRATIVE REWRITE</p>
+      <h1>Original vs optimized</h1>
+    </div>
+    <span class="stamp">Demonstration data</span>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="container comparison">
+    <p class="compare-disclaimer">The optimized implementation below is a fixed example, not a rewrite generated from your code. All figures are demonstration estimates; nothing was executed or benchmarked.</p>
+
+    <section class="improvement-strip" aria-label="Illustrative improvements">
+      <div><span>Time</span><strong>−{{ a.improvements.time }}%</strong><small>vs original example</small></div>
+      <div><span>Energy</span><strong>−{{ a.improvements.energy }}%</strong><small>vs original example</small></div>
+      <div><span>Carbon</span><strong>−{{ a.improvements.co2 }}%</strong><small>vs original example</small></div>
+      <div><span>Complexity</span><strong>O(n log n)</strong><small>from {{ a.metrics.complexity }}</small></div>
+    </section>
+
+    <section class="code-panels" aria-label="Source code comparison">
+      <article class="code-panel original">
+        <header>
+          <div><span class="panel-index">A / SUBMITTED</span><h2>Original code</h2></div>
+          <span class="panel-summary">{{ a.metrics.complexity }} · {{ a.metrics.time }} {{ a.metrics.time_unit }}</span>
+        </header>
+<pre class="code-view"><code>{% for line in original_lines %}<span class="code-line{% if line.hot %} is-changed{% endif %}"><span class="line-no">{{ '%02d' % line.num }}</span><span class="line-text">{{ line.text }}</span></span>{% endfor %}</code></pre>
+        <footer>Submitted text · displayed exactly as received</footer>
+      </article>
+
+      <article class="code-panel optimized">
+        <header>
+          <div><span class="panel-index">B / EXAMPLE REWRITE</span><h2>Optimized code</h2></div>
+          <span class="panel-summary">{{ a.optimized.complexity }} · {{ a.optimized.time }} {{ a.optimized.time_unit }}</span>
+        </header>
+<pre class="code-view"><code>{% for line in optimized_lines %}<span class="code-line{% if line.hot %} is-changed{% endif %}"><span class="line-no">{{ '%02d' % line.num }}</span><span class="line-text">{{ line.text }}</span></span>{% endfor %}</code></pre>
+        <footer><span class="swatch"></span> Highlighted lines mark the substantive changes</footer>
+      </article>
+    </section>
+    <p class="select-hint">To copy either implementation, select the code with your mouse or keyboard. No clipboard script is used.</p>
+
+    <div class="section-title">
+      <p class="eyebrow">METRIC COMPARISON</p>
+      <h2>Side by side</h2>
+    </div>
+
+    <section class="table-wrap">
+      <table class="data-table compare-table">
+        <thead>
+          <tr><th scope="col">Metric</th><th scope="col">Original</th><th scope="col">Optimized (example)</th><th scope="col">Change</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Time complexity</th><td class="mono">{{ a.metrics.complexity }}</td><td class="mono is-best">{{ a.optimized.complexity }}</td><td><span class="tag tag-good">Improved</span></td></tr>
+          <tr><th scope="row">Execution time</th><td class="mono">{{ a.metrics.time }} {{ a.metrics.time_unit }}</td><td class="mono is-best">{{ a.optimized.time }} {{ a.optimized.time_unit }}</td><td class="delta">−{{ a.improvements.time }}%</td></tr>
+          <tr><th scope="row">Energy consumption</th><td class="mono">{{ a.metrics.energy }} {{ a.metrics.energy_unit }}</td><td class="mono is-best">{{ a.optimized.energy }} {{ a.optimized.energy_unit }}</td><td class="delta">−{{ a.improvements.energy }}%</td></tr>
+          <tr><th scope="row">Carbon emissions</th><td class="mono">{{ a.metrics.co2 }} {{ a.metrics.co2_unit }}</td><td class="mono is-best">{{ a.optimized.co2 }} {{ a.optimized.co2_unit }}</td><td class="delta">−{{ a.improvements.co2 }}%</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="before-after" aria-label="Before and after comparison">
+      <div class="before-after-head">
+        <h2>Before and after</h2>
+        <span class="legend"><i class="sw-orig"></i>original = 100% <i class="sw-ref"></i>example optimized</span>
+      </div>
+      <div class="ba-row">
+        <span class="ba-label">Execution time</span>
+        <div class="ba-track"><i class="ba-orig" style="width: 100%"></i><i class="ba-ref" style="width: {{ 100 - a.improvements.time }}%"></i></div>
+        <span class="ba-value">−{{ a.improvements.time }}%</span>
+      </div>
+      <div class="ba-row">
+        <span class="ba-label">Energy</span>
+        <div class="ba-track"><i class="ba-orig" style="width: 100%"></i><i class="ba-ref" style="width: {{ 100 - a.improvements.energy }}%"></i></div>
+        <span class="ba-value">−{{ a.improvements.energy }}%</span>
+      </div>
+      <div class="ba-row">
+        <span class="ba-label">Carbon</span>
+        <div class="ba-track"><i class="ba-orig" style="width: 100%"></i><i class="ba-ref" style="width: {{ 100 - a.improvements.co2 }}%"></i></div>
+        <span class="ba-value">−{{ a.improvements.co2 }}%</span>
+      </div>
+      <p class="chart-caption">Relative bars use the demonstration model. They do not represent measured savings.</p>
+    </section>
+
+    <section class="explanation">
+      <div>
+        <p class="eyebrow">HOW THE EXAMPLE CHANGES</p>
+        <h2>What was changed</h2>
+      </div>
+      <ol class="explanation-list">
+        {% for note in a.findings.notes %}<li>{{ note }}</li>{% endfor %}
+      </ol>
+    </section>
+
+    <div class="compare-actions">
+      <a class="btn btn-primary" href="{{ url_for('download_optimized') }}">Download optimized code <span aria-hidden="true">↓</span></a>
+      <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Back to dashboard</a>
+      <a class="btn btn-secondary" href="{{ url_for('analyze') }}">Analyze another program</a>
+    </div>
+  </div>
+{% endblock %}

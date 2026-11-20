@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}EcoCode{% endblock %} · EcoCode</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-head">
+    <div class="head-inner">
+      <a class="wordmark" href="{{ url_for('index') }}" aria-label="EcoCode overview">
+        <span class="mark" aria-hidden="true"></span><span>ecocode</span>
+      </a>
+      {% set path = request.path %}
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="{{ url_for('index') }}"{% if path == '/' %} aria-current="page"{% endif %}>Overview</a>
+        <a href="{{ url_for('analyze') }}"{% if path in ['/analyze', '/dashboard', '/comparison'] %} aria-current="page"{% endif %}>New analysis</a>
+        <a href="{{ url_for('history') }}"{% if path == '/history' %} aria-current="page"{% endif %}>Analysis history</a>
+        <a href="{{ url_for('reports') }}"{% if path == '/reports' %} aria-current="page"{% endif %}>Reports</a>
+        <a href="{{ url_for('settings') }}"{% if path == '/settings' %} aria-current="page"{% endif %}>Settings</a>
+      </nav>
+      <a class="head-action" href="{{ url_for('analyze') }}">Analyze code <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash-wrap container">
+        {% for message in messages %}<p class="flash">{{ message }}</p>{% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block page_header %}{% endblock %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-foot">
+    <div class="container foot-grid">
+      <div class="foot-brand">
+        <a class="wordmark" href="{{ url_for('index') }}"><span class="mark" aria-hidden="true"></span><span>ecocode</span></a>
+        <p>Performance and environmental intelligence for the code we write.</p>
+      </div>
+      <nav aria-label="Footer">
+        <span>Product</span>
+        <a href="{{ url_for('analyze') }}">New analysis</a>
+        <a href="{{ url_for('dashboard') }}">Sample dashboard</a>
+        <a href="{{ url_for('comparison') }}">Code comparison</a>
+      </nav>
+      <nav aria-label="Documentation">
+        <span>Resources</span>
+        <a href="{{ url_for('history') }}">Analysis history</a>
+        <a href="{{ url_for('reports') }}">Reports</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+      </nav>
+    </div>
+    <div class="container foot-base">
+      <span>Built by developers, for developers.</span>
+      <span>Prototype · all figures are demonstration data · no submitted code is executed.</span>
+    </div>
+  </footer>
+</body>
+</html>
